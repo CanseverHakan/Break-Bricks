@@ -7,7 +7,7 @@ document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
 
-canvas.height = 800
+canvas.height = 650
 canvas.width = 1000
 
 let x = canvas.width / 2;
@@ -24,7 +24,7 @@ let rightPressed = false;
 let leftPressed = false;
 
 let brickRowCount = getRandomInt(5, 8);
-let brickColumnCount = getRandomInt(4, 7);
+let brickColumnCount = getRandomInt(4, 6);
 let brickWidth = 75;
 let brickHeight = 25;
 let brickPadding = 40;
@@ -38,8 +38,10 @@ let lives = 3;
 function drawBall() { //BALL
     ctx.beginPath()
     ctx.arc(x, y, ballRadius, 0, Math.PI * 2)
-    ctx.fillStyle = "#0095DD"
+    ctx.fillStyle = "#ec5f08"
     ctx.fill()
+    ctx.strokeStyle = "black"
+    ctx.stroke()
     ctx.closePath()
 }
 
@@ -48,22 +50,37 @@ function drawPaddle() { //PADDLE
     ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
     ctx.fillStyle = "#0095DD"
     ctx.fill()
+    ctx.strokeStyle = "black"
+    ctx.stroke()
     ctx.closePath()
 }
 
+let brickColors = [];
+
+for (let i = 0; i < brickRowCount * brickColumnCount; i++) {
+    brickColors.push(getRandomColor());
+}
+
 function drawBricks() { //BRICKS
+    let colorIndex = 0
     for (let c = 0; c < brickColumnCount; c++) {
         for (let r = 0; r < brickRowCount; r++) {
             if (bricks[c][r].status === 1) {
                 let brickX = c * (brickWidth + brickPadding) + brickOffsetLeft
                 let brickY = r * (brickHeight + brickPadding) + brickOffsetTop
+
+                const color = brickColors[colorIndex]
+
                 bricks[c][r].x = brickX
                 bricks[c][r].y = brickY
                 ctx.beginPath()
                 ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStyle = "#0095DD"
+                ctx.fillStyle = color
                 ctx.fill()
+                ctx.strokeStyle = "black"
+                ctx.stroke()
                 ctx.closePath()
+                colorIndex++
             }
         }
     }
@@ -85,10 +102,10 @@ function collisionDetection() { //BRICKS COLLISION
         for (let r = 0; r < brickRowCount; r++) {
             let b = bricks[c][r]
             if (b.status === 1) {
-                if (x > b.x &&
-                    x < b.x + brickWidth - 20 &&
-                    y > b.y + brickHeight - 32 &&
-                    y < b.y + brickHeight + 10) {
+                if (x > b.x - 12 &&
+                    x < b.x + (brickWidth + 10 ) &&
+                    y > b.y + (brickHeight - 35) &&
+                    y < b.y + brickHeight + ballRadius) {
                     dy = -dy;
                     b.status = 0
                     score++
@@ -104,15 +121,15 @@ function collisionDetection() { //BRICKS COLLISION
 }
 
 function drawScore() {
-    ctx.font = "16px Arial";
+    ctx.font = "20px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText("Score: " + score, 8, 20);
 }
 
 function drawLives() {
-    ctx.font = "16px Arial";
+    ctx.font = "20px Arial";
     ctx.fillStyle = "#0095DD";
-    ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+    ctx.fillText("Lives: " + lives, canvas.width - 80, 20);
 }
 
 function draw() {
@@ -132,7 +149,7 @@ function draw() {
     if (y + dy < ballRadius) { //TOP REBOUND
         dy = -dy
     }
-    else if (y + dy > canvas.height - ballRadius -10) {
+    else if (y + dy > canvas.height - ballRadius - 10) {
         if (x > paddleX && x < paddleX + paddleWidth) { //PADDLE REBOUND
             dy = -dy
         }
@@ -163,7 +180,7 @@ function draw() {
             paddleX = 0
         }
     }
-}
+} 
 
 
 //KEY CONFIG
@@ -194,4 +211,13 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+
+function getRandomColor() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
